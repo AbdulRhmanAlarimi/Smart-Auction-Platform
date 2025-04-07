@@ -1,3 +1,5 @@
+import 'dart:io';
+
 enum UserRole { buyer, seller }
 
 enum ItemStatus { available, auction, sold }
@@ -309,4 +311,249 @@ void main() {
   Map<int, Auction> auctionMap = {
     for (var auction in auctions) auction.auctionId: auction,
   };
+
+  void displayMenu() {
+    print("\n=== Smart Auction Platform Menu ===");
+    print("1. Display Information of Lists");
+    print("2. Add New Data to List");
+    print("3. Delete Record");
+    print("4. Search Record");
+    print("5. Exit");
+    stdout.write("Choose an option: ");
+  }
+
+  void displayListInfo(
+    List<User> users,
+    List<Item> items,
+    List<Auction> auctions,
+    List<Bid> bids,
+  ) {
+    print("\n=== Display Information ===");
+    print("Users:");
+    users.forEach((user) => print(user));
+    print("\nItems:");
+    items.forEach((item) => print(item));
+    print("\nAuctions:");
+    auctions.forEach((auction) => print(auction));
+    print("\nBids:");
+    bids.forEach((bid) => print(bid));
+  }
+
+  void addNewData(
+    List<User> users,
+    List<Item> items,
+    List<Auction> auctions,
+    List<Bid> bids,
+  ) {
+    print("\n=== Add New Data ===");
+    print("1. Add User");
+    print("2. Add Item");
+    print("3. Add Auction");
+    print("4. Add Bid");
+    stdout.write("Choose an option: ");
+    int choice = int.parse(stdin.readLineSync()!);
+
+    switch (choice) {
+      case 1:
+        stdout.write("Enter username: ");
+        String username = stdin.readLineSync()!;
+        stdout.write("Enter email: ");
+        String email = stdin.readLineSync()!;
+        stdout.write("Enter phone: ");
+        String phone = stdin.readLineSync()!;
+        stdout.write("Enter address: ");
+        String address = stdin.readLineSync()!;
+        stdout.write("Enter password: ");
+        String password = stdin.readLineSync()!;
+        stdout.write("Enter role (buyer/seller): ");
+        String role = stdin.readLineSync()!;
+        users.add(
+          User(
+            username,
+            email,
+            phone,
+            address,
+            password,
+            role == "buyer" ? UserRole.buyer : UserRole.seller,
+          ),
+        );
+        print("User added successfully.");
+        break;
+      case 2:
+        stdout.write("Enter seller ID: ");
+        int sellerId = int.parse(stdin.readLineSync()!);
+        stdout.write("Enter item name: ");
+        String name = stdin.readLineSync()!;
+        stdout.write("Enter description: ");
+        String description = stdin.readLineSync()!;
+        stdout.write("Enter starting price (or leave blank): ");
+        String? startingPriceInput = stdin.readLineSync();
+        double? startingPrice =
+            startingPriceInput != null && startingPriceInput.isNotEmpty
+                ? double.parse(startingPriceInput)
+                : null;
+        stdout.write("Enter fixed price (or leave blank): ");
+        String? fixedPriceInput = stdin.readLineSync();
+        double? fixedPrice =
+            fixedPriceInput != null && fixedPriceInput.isNotEmpty
+                ? double.parse(fixedPriceInput)
+                : null;
+        items.add(
+          Item(
+            sellerId,
+            name,
+            description,
+            startingPrice,
+            fixedPrice,
+            ItemStatus.available,
+          ),
+        );
+        print("Item added successfully.");
+        break;
+      case 3:
+        stdout.write("Enter item ID for auction: ");
+        int itemId = int.parse(stdin.readLineSync()!);
+        stdout.write("Enter start time (yyyy-MM-dd HH:mm): ");
+        DateTime startTime = DateTime.parse(stdin.readLineSync()!);
+        stdout.write("Enter end time (yyyy-MM-dd HH:mm): ");
+        DateTime endTime = DateTime.parse(stdin.readLineSync()!);
+        stdout.write("Enter starting bid: ");
+        double startingBid = double.parse(stdin.readLineSync()!);
+        auctions.add(Auction(itemId, startTime, endTime, startingBid, true));
+        print("Auction added successfully.");
+        break;
+      case 4:
+        stdout.write("Enter auction ID: ");
+        int auctionId = int.parse(stdin.readLineSync()!);
+        stdout.write("Enter user ID: ");
+        int userId = int.parse(stdin.readLineSync()!);
+        stdout.write("Enter bid amount: ");
+        double amount = double.parse(stdin.readLineSync()!);
+        bids.add(Bid(auctionId, userId, amount, DateTime.now()));
+        print("Bid added successfully.");
+        break;
+      default:
+        print("Invalid option.");
+    }
+  }
+
+  void deleteRecord(
+    List<User> users,
+    List<Item> items,
+    List<Auction> auctions,
+    List<Bid> bids,
+  ) {
+    print("\n=== Delete Record ===");
+    print("1. Delete User");
+    print("2. Delete Item");
+    print("3. Delete Auction");
+    print("4. Delete Bid");
+    stdout.write("Choose an option: ");
+    int choice = int.parse(stdin.readLineSync()!);
+
+    switch (choice) {
+      case 1:
+        stdout.write("Enter user ID to delete: ");
+        int userId = int.parse(stdin.readLineSync()!);
+        users.removeWhere((user) => user.id == userId);
+        print("User deleted successfully.");
+        break;
+      case 2:
+        stdout.write("Enter item ID to delete: ");
+        int itemId = int.parse(stdin.readLineSync()!);
+        items.removeWhere((item) => item.itemId == itemId);
+        print("Item deleted successfully.");
+        break;
+      case 3:
+        stdout.write("Enter auction ID to delete: ");
+        int auctionId = int.parse(stdin.readLineSync()!);
+        auctions.removeWhere((auction) => auction.auctionId == auctionId);
+        print("Auction deleted successfully.");
+        break;
+      case 4:
+        stdout.write("Enter bid ID to delete: ");
+        int bidId = int.parse(stdin.readLineSync()!);
+        bids.removeWhere((bid) => bid.bidId == bidId);
+        print("Bid deleted successfully.");
+        break;
+      default:
+        print("Invalid option.");
+    }
+  }
+
+  void searchRecord(
+    List<User> users,
+    List<Item> items,
+    List<Auction> auctions,
+    List<Bid> bids,
+  ) {
+    print("\n=== Search Record ===");
+    print("1. Search User");
+    print("2. Search Item");
+    print("3. Search Auction");
+    print("4. Search Bid");
+    stdout.write("Choose an option: ");
+    int choice = int.parse(stdin.readLineSync()!);
+
+    switch (choice) {
+      case 1:
+        stdout.write("Enter username to search: ");
+        String username = stdin.readLineSync()!;
+        users.where((user) => user.username.contains(username)).forEach(print);
+        break;
+      case 2:
+        stdout.write("Enter item name to search: ");
+        String name = stdin.readLineSync()!;
+        items.where((item) => item.name.contains(name)).forEach(print);
+        break;
+      case 3:
+        stdout.write("Enter auction ID to search: ");
+        int auctionId = int.parse(stdin.readLineSync()!);
+        auctions
+            .where((auction) => auction.auctionId == auctionId)
+            .forEach(print);
+        break;
+      case 4:
+        stdout.write("Enter bid ID to search: ");
+        int bidId = int.parse(stdin.readLineSync()!);
+        bids.where((bid) => bid.bidId == bidId).forEach(print);
+        break;
+      default:
+        print("Invalid option.");
+    }
+  }
+
+  void mainMenu(
+    List<User> users,
+    List<Item> items,
+    List<Auction> auctions,
+    List<Bid> bids,
+  ) {
+    while (true) {
+      displayMenu();
+      int choice = int.parse(stdin.readLineSync()!);
+
+      switch (choice) {
+        case 1:
+          displayListInfo(users, items, auctions, bids);
+          break;
+        case 2:
+          addNewData(users, items, auctions, bids);
+          break;
+        case 3:
+          deleteRecord(users, items, auctions, bids);
+          break;
+        case 4:
+          searchRecord(users, items, auctions, bids);
+          break;
+        case 5:
+          print("Exiting program. Goodbye!");
+          return;
+        default:
+          print("Invalid option. Please try again.");
+      }
+    }
+  }
+
+  mainMenu(users, items, auctions, bids);
 }
