@@ -498,33 +498,27 @@ void main() {
       case 1:
         stdout.write("Enter phone number of the user to delete: ");
         String phone = stdin.readLineSync()!;
-        var userToDelete = users.firstWhere(
-          (user) => user.phone == phone,
-          orElse: () => throw Exception("User not found."),
-        );
-        if (userToDelete != null) {
+        try {
+          var userToDelete = users.firstWhere((user) => user.phone == phone);
           users.remove(userToDelete);
           print("User deleted successfully.");
-        } else {
+        } catch (e) {
           print("User not found. Please try again.");
         }
         break;
       case 2:
         stdout.write("Enter name of the item to delete: ");
         String name = stdin.readLineSync()!;
-        var itemToDelete = items.firstWhere(
-          (item) => item.name == name,
-          orElse: () => throw Exception("Item not found."),
-        );
-        if (itemToDelete != null) {
+        try {
+          var itemToDelete = items.firstWhere(
+            (item) => item.name == name,
+            orElse: () => throw Exception("Item not found."),
+          );
           items.remove(itemToDelete);
           print("Item deleted successfully.");
-        } else {
-          print("Item not found. Please try again.");
+        } catch (e) {
+          print(e);
         }
-        break;
-      default:
-        print("Invalid option.");
     }
   }
 
