@@ -487,90 +487,36 @@ void main() {
     }
   }
 
-  void deleteRecord(
-    List<User> users,
-    List<Item> items,
-    List<Auction> auctions,
-    List<Bid> bids,
-  ) {
+  void deleteRecord(List<User> users, List<Item> items) {
     print("\n=== Delete Record ===");
     print("1. Delete User");
     print("2. Delete Item");
-    print("3. Delete Auction");
-    print("4. Delete Bid");
     stdout.write("Choose an option: ");
     int choice = int.parse(stdin.readLineSync()!);
 
     switch (choice) {
       case 1:
-        stdout.write("Enter user ID to delete: ");
-        int userId = int.parse(stdin.readLineSync()!);
-        users.removeWhere((user) => user.id == userId);
+        stdout.write("Enter phone number of the user to delete: ");
+        String phone = stdin.readLineSync()!;
+        users.removeWhere((user) => user.phone == phone);
         print("User deleted successfully.");
         break;
       case 2:
-        stdout.write("Enter item ID to delete: ");
-        int itemId = int.parse(stdin.readLineSync()!);
-        items.removeWhere((item) => item.itemId == itemId);
+        stdout.write("Enter name of the item to delete: ");
+        String name = stdin.readLineSync()!;
+        items.removeWhere((item) => item.name == name);
         print("Item deleted successfully.");
-        break;
-      case 3:
-        stdout.write("Enter auction ID to delete: ");
-        int auctionId = int.parse(stdin.readLineSync()!);
-        auctions.removeWhere((auction) => auction.auctionId == auctionId);
-        print("Auction deleted successfully.");
-        break;
-      case 4:
-        stdout.write("Enter bid ID to delete: ");
-        int bidId = int.parse(stdin.readLineSync()!);
-        bids.removeWhere((bid) => bid.bidId == bidId);
-        print("Bid deleted successfully.");
         break;
       default:
         print("Invalid option.");
     }
   }
 
-  void searchRecord(
-    List<User> users,
-    List<Item> items,
-    List<Auction> auctions,
-    List<Bid> bids,
-  ) {
-    print("\n=== Search Record ===");
-    print("1. Search User");
-    print("2. Search Item");
-    print("3. Search Auction");
-    print("4. Search Bid");
-    stdout.write("Choose an option: ");
-    int choice = int.parse(stdin.readLineSync()!);
-
-    switch (choice) {
-      case 1:
-        stdout.write("Enter username to search: ");
-        String username = stdin.readLineSync()!;
-        users.where((user) => user.username.contains(username)).forEach(print);
-        break;
-      case 2:
-        stdout.write("Enter item name to search: ");
-        String name = stdin.readLineSync()!;
-        items.where((item) => item.name.contains(name)).forEach(print);
-        break;
-      case 3:
-        stdout.write("Enter auction ID to search: ");
-        int auctionId = int.parse(stdin.readLineSync()!);
-        auctions
-            .where((auction) => auction.auctionId == auctionId)
-            .forEach(print);
-        break;
-      case 4:
-        stdout.write("Enter bid ID to search: ");
-        int bidId = int.parse(stdin.readLineSync()!);
-        bids.where((bid) => bid.bidId == bidId).forEach(print);
-        break;
-      default:
-        print("Invalid option.");
-    }
+  void searchRecord(List<Item> items) {
+    print("\n=== Search Item ===");
+    stdout.write("Enter item name to search: ");
+    String name = stdin.readLineSync()!;
+    items.where((item) => item.name.contains(name)).forEach(print);
   }
 
   void mainMenu(
@@ -591,10 +537,10 @@ void main() {
           addNewData(users, items, auctions, bids);
           break;
         case 3:
-          deleteRecord(users, items, auctions, bids);
+          deleteRecord(users, items);
           break;
         case 4:
-          searchRecord(users, items, auctions, bids);
+          searchRecord(items);
           break;
         case 5:
           print("Exiting program. Goodbye!");
