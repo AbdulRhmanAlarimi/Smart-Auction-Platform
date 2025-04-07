@@ -275,7 +275,7 @@ void main() {
       "A rare vintage watch in excellent condition.",
       200.0,
       500.0,
-      ItemStatus.available,
+      ItemStatus.sold,
     ),
   ];
 
