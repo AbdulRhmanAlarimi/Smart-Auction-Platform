@@ -261,7 +261,7 @@ void main() {
       UserRole.seller,
     ),
   ];
-
+  
   List<Item> items = [
     Item(
       users[0]._id,
@@ -271,6 +271,7 @@ void main() {
       null,
       ItemStatus.available,
     ),
+    
     Item(
       users[1]._id,
       "Vintage Watch",
@@ -323,20 +324,27 @@ void main() {
   }
 
   void displayListInfo(
-    List<User> users,
     List<Item> items,
     List<Auction> auctions,
-    List<Bid> bids,
   ) {
     print("\n=== Display Information ===");
-    print("Users:");
-    users.forEach((user) => print(user));
-    print("\nItems:");
-    items.forEach((item) => print(item));
-    print("\nAuctions:");
-    auctions.forEach((auction) => print(auction));
-    print("\nBids:");
-    bids.forEach((bid) => print(bid));
+    print("1. Display Item Information");
+    print("2. Display Auction Information");
+    stdout.write("Choose an option: ");
+    int choice = int.parse(stdin.readLineSync()!);
+
+    switch (choice) {
+      case 1:
+        print("\nItems:");
+        items.forEach((item) => print(item));
+        break;
+      case 2:
+        print("\nAuctions:");
+        auctions.forEach((auction) => print(auction));
+        break;
+      default:
+        print("Invalid option. Please try again.");
+    }
   }
 
   void addNewData(
@@ -348,8 +356,7 @@ void main() {
     print("\n=== Add New Data ===");
     print("1. Add User");
     print("2. Add Item");
-    print("3. Add Auction");
-    print("4. Add Bid");
+    print("3. Add Bid");
     stdout.write("Choose an option: ");
     int choice = int.parse(stdin.readLineSync()!);
 
@@ -382,59 +389,95 @@ void main() {
       case 2:
         stdout.write("Enter seller ID: ");
         int sellerId = int.parse(stdin.readLineSync()!);
+        if (!users.any((user) => user.id == sellerId && user.role == UserRole.seller)) {
+          print("Error: Seller ID $sellerId is not registered or is not a seller.");
+          return;
+        }
         stdout.write("Enter item name: ");
         String name = stdin.readLineSync()!;
         stdout.write("Enter description: ");
         String description = stdin.readLineSync()!;
-        stdout.write("Enter starting price (or leave blank): ");
-        String? startingPriceInput = stdin.readLineSync();
-        double? startingPrice =
+        print("Do you want this item to be sold at a fixed price or via auction?");
+        print("1. Fixed Price");
+        print("2. Auction");
+        stdout.write("Choose an option: ");
+        int itemChoice = int.parse(stdin.readLineSync()!);
+
+        if (itemChoice == 1) {
+          stdout.write("Enter fixed price: ");
+          double fixedPrice = double.parse(stdin.readLineSync()!);
+          items.add(
+        Item(
+          sellerId,
+          name,
+          description,
+          null, // Starting price is null for fixed price
+          fixedPrice,
+          ItemStatus.available,
+        ),
+          );
+          print("Item added successfully with a fixed price.");
+        } else if (itemChoice == 2) {
+          stdout.write("Enter starting price: ");
+          String? startingPriceInput = stdin.readLineSync();
+          double? startingPrice =
             startingPriceInput != null && startingPriceInput.isNotEmpty
-                ? double.parse(startingPriceInput)
-                : null;
-        stdout.write("Enter fixed price (or leave blank): ");
-        String? fixedPriceInput = stdin.readLineSync();
-        double? fixedPrice =
-            fixedPriceInput != null && fixedPriceInput.isNotEmpty
-                ? double.parse(fixedPriceInput)
-                : null;
-        items.add(
-          Item(
-            sellerId,
-            name,
-            description,
-            startingPrice,
-            fixedPrice,
-            ItemStatus.available,
-          ),
-        );
-        print("Item added successfully.");
-        break;
-      case 3:
-        stdout.write("Enter item ID for auction: ");
-        int itemId = int.parse(stdin.readLineSync()!);
-        stdout.write("Enter start time (yyyy-MM-dd HH:mm): ");
-        DateTime startTime = DateTime.parse(stdin.readLineSync()!);
-        stdout.write("Enter end time (yyyy-MM-dd HH:mm): ");
-        DateTime endTime = DateTime.parse(stdin.readLineSync()!);
-        stdout.write("Enter starting bid: ");
-        double startingBid = double.parse(stdin.readLineSync()!);
-        auctions.add(Auction(itemId, startTime, endTime, startingBid, true));
-        print("Auction added successfully.");
+            ? double.parse(startingPriceInput)
+            : null;
+          stdout.write("Enter auction start time (yyyy-MM-dd HH:mm): ");
+          DateTime startTime = DateTime.parse(stdin.readLineSync()!);
+          stdout.write("Enter auction end time (yyyy-MM-dd HH:mm): ");
+          DateTime endTime = DateTime.parse(stdin.readLineSync()!);
+          stdout.write("Enter starting bid: ");
+          double startingBid = double.parse(stdin.readLineSync()!);
+
+          Item newItem = Item(
+              sellerId,
+              name,
+              description,
+              startingBid, // Starting price is used for auction
+              null, // Fixed price is null for auction
+              ItemStatus.auction,
+            );
+          items.add(newItem);
+
+          auctions.add(Auction(newItem.itemId, startTime, endTime, startingBid, true));
+          print("Item added successfully and listed for auction.");
+        } else {
+          print("Invalid option. Item not added.");
+        }
         break;
       case 4:
         stdout.write("Enter auction ID: ");
         int auctionId = int.parse(stdin.readLineSync()!);
+        Auction? auction = auctions.firstWhere(
+          (a) => a.auctionId == auctionId,
+          orElse: () {
+            print("Error: Auction ID $auctionId not found.");
+          },
+        );
+
+        if (auction == null) {
+          return;
+        }
+
         stdout.write("Enter user ID: ");
         int userId = int.parse(stdin.readLineSync()!);
         stdout.write("Enter bid amount: ");
         double amount = double.parse(stdin.readLineSync()!);
+
+        if (amount <= auction.currentBid) {
+          print("Error: Bid amount must be greater than the current bid (\$${auction.currentBid}).");
+          return;
+        }
+
         bids.add(Bid(auctionId, userId, amount, DateTime.now()));
+        auction.currentBid = amount;
         print("Bid added successfully.");
         break;
       default:
         print("Invalid option.");
-    }
+        }
   }
 
   void deleteRecord(
@@ -535,7 +578,7 @@ void main() {
 
       switch (choice) {
         case 1:
-          displayListInfo(users, items, auctions, bids);
+          displayListInfo(items, auctions);
           break;
         case 2:
           addNewData(users, items, auctions, bids);
