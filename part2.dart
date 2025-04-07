@@ -261,7 +261,7 @@ void main() {
       UserRole.seller,
     ),
   ];
-  
+
   List<Item> items = [
     Item(
       users[0]._id,
@@ -271,7 +271,7 @@ void main() {
       null,
       ItemStatus.available,
     ),
-    
+
     Item(
       users[1]._id,
       "Vintage Watch",
@@ -323,10 +323,7 @@ void main() {
     stdout.write("Choose an option: ");
   }
 
-  void displayListInfo(
-    List<Item> items,
-    List<Auction> auctions,
-  ) {
+  void displayListInfo(List<Item> items, List<Auction> auctions) {
     print("\n=== Display Information ===");
     print("1. Display Item Information");
     print("2. Display Auction Information");
@@ -389,15 +386,21 @@ void main() {
       case 2:
         stdout.write("Enter seller ID: ");
         int sellerId = int.parse(stdin.readLineSync()!);
-        if (!users.any((user) => user.id == sellerId && user.role == UserRole.seller)) {
-          print("Error: Seller ID $sellerId is not registered or is not a seller.");
+        if (!users.any(
+          (user) => user.id == sellerId && user.role == UserRole.seller,
+        )) {
+          print(
+            "Error: Seller ID $sellerId is not registered or is not a seller.",
+          );
           return;
         }
         stdout.write("Enter item name: ");
         String name = stdin.readLineSync()!;
         stdout.write("Enter description: ");
         String description = stdin.readLineSync()!;
-        print("Do you want this item to be sold at a fixed price or via auction?");
+        print(
+          "Do you want this item to be sold at a fixed price or via auction?",
+        );
         print("1. Fixed Price");
         print("2. Auction");
         stdout.write("Choose an option: ");
@@ -407,23 +410,23 @@ void main() {
           stdout.write("Enter fixed price: ");
           double fixedPrice = double.parse(stdin.readLineSync()!);
           items.add(
-        Item(
-          sellerId,
-          name,
-          description,
-          null, // Starting price is null for fixed price
-          fixedPrice,
-          ItemStatus.available,
-        ),
+            Item(
+              sellerId,
+              name,
+              description,
+              null, // Starting price is null for fixed price
+              fixedPrice,
+              ItemStatus.available,
+            ),
           );
           print("Item added successfully with a fixed price.");
         } else if (itemChoice == 2) {
           stdout.write("Enter starting price: ");
           String? startingPriceInput = stdin.readLineSync();
           double? startingPrice =
-            startingPriceInput != null && startingPriceInput.isNotEmpty
-            ? double.parse(startingPriceInput)
-            : null;
+              startingPriceInput != null && startingPriceInput.isNotEmpty
+                  ? double.parse(startingPriceInput)
+                  : null;
           stdout.write("Enter auction start time (yyyy-MM-dd HH:mm): ");
           DateTime startTime = DateTime.parse(stdin.readLineSync()!);
           stdout.write("Enter auction end time (yyyy-MM-dd HH:mm): ");
@@ -432,16 +435,18 @@ void main() {
           double startingBid = double.parse(stdin.readLineSync()!);
 
           Item newItem = Item(
-              sellerId,
-              name,
-              description,
-              startingBid, // Starting price is used for auction
-              null, // Fixed price is null for auction
-              ItemStatus.auction,
-            );
+            sellerId,
+            name,
+            description,
+            startingBid, // Starting price is used for auction
+            null, // Fixed price is null for auction
+            ItemStatus.auction,
+          );
           items.add(newItem);
 
-          auctions.add(Auction(newItem.itemId, startTime, endTime, startingBid, true));
+          auctions.add(
+            Auction(newItem.itemId, startTime, endTime, startingBid, true),
+          );
           print("Item added successfully and listed for auction.");
         } else {
           print("Invalid option. Item not added.");
@@ -453,7 +458,7 @@ void main() {
         Auction? auction = auctions.firstWhere(
           (a) => a.auctionId == auctionId,
           orElse: () {
-            print("Error: Auction ID $auctionId not found.");
+            throw Exception("Error: Auction ID $auctionId not found.");
           },
         );
 
@@ -467,7 +472,9 @@ void main() {
         double amount = double.parse(stdin.readLineSync()!);
 
         if (amount <= auction.currentBid) {
-          print("Error: Bid amount must be greater than the current bid (\$${auction.currentBid}).");
+          print(
+            "Error: Bid amount must be greater than the current bid (\$${auction.currentBid}).",
+          );
           return;
         }
 
@@ -477,7 +484,7 @@ void main() {
         break;
       default:
         print("Invalid option.");
-        }
+    }
   }
 
   void deleteRecord(
