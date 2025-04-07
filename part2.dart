@@ -525,8 +525,22 @@ void main() {
   void searchRecord(List<Item> items) {
     print("\n=== Search Item ===");
     stdout.write("Enter item name to search: ");
-    String name = stdin.readLineSync()!;
-    items.where((item) => item.name.contains(name)).forEach(print);
+    String? name = stdin.readLineSync();
+    if (name == null || name.trim().isEmpty) {
+      print("No input provided. Please enter a valid item name.");
+      return;
+    }
+    var results =
+        items
+            .where(
+              (item) => item.name.toLowerCase().contains(name.toLowerCase()),
+            )
+            .toList();
+    if (results.isEmpty) {
+      print("No items found with the name '$name'.");
+    } else {
+      results.forEach(print);
+    }
   }
 
   void mainMenu(
