@@ -241,9 +241,125 @@ class Delivery {
 }
 
 void main() {
-  List<User> users = [];
-  List<Item> items = [];
-  List<Auction> auctions = [];
+  List<User> users = [
+    User(
+      "Omar",
+      "omar@gmail.com",
+      "+96892345678",
+      "Muscat, Oman",
+      "Omar@12345",
+      UserRole.seller,
+    ),
+
+    User(
+      "Abdullah",
+      "yousef@gmail.com",
+      "+96891234488",
+      "Nizwa, Oman",
+      "Yousef!2024",
+      UserRole.buyer,
+    ),
+
+    User(
+      "Khaled",
+      "khaled@gmail.com",
+      "+96892754312",
+      "Muscat, Oman",
+      "Khaled#Pass1",
+      UserRole.seller,
+    ),
+
+    User(
+      "Tariq",
+      "tariq@gmail.com",
+      "+96895321100",
+      "Sohar, Oman",
+      "Tariq2025!",
+      UserRole.buyer,
+    ),
+
+    User(
+      "Fahad",
+      "fahad@gmail.com",
+      "+96898442233",
+      "Salalah, Oman",
+      "Fahad@Secure",
+      UserRole.seller,
+    ),
+  ];
+
+  List<Item> items = [
+    Item(
+      110,
+      "Laser Printer",
+      "High-quality laser printer suitable for office use",
+      60,
+      110,
+      ItemStatus.available,
+    ),
+    Item(
+      220,
+      "Office Desk",
+      "Modern wooden office desk with drawers",
+      140,
+      220,
+      ItemStatus.available,
+    ),
+    Item(
+      90,
+      "Swivel Chair",
+      "Ergonomic swivel chair with adjustable height",
+      45,
+      90,
+      ItemStatus.sold,
+    ),
+    Item(
+      130,
+      "File Cabinet",
+      "Metal filing cabinet with 4 drawers for documents",
+      70,
+      130,
+      ItemStatus.available,
+    ),
+    Item(
+      50,
+      "Whiteboard",
+      "Magnetic whiteboard for meetings and presentations",
+      25,
+      50,
+      ItemStatus.available,
+    ),
+  ];
+  List<Auction> auctions = [
+    Auction(
+      1,
+      DateTime.parse("2025-04-07 09:00"),
+      DateTime.parse("2025-04-10 17:00"),
+      65,
+      true,
+    ),
+    Auction(
+      2,
+      DateTime.parse("2025-04-06 08:30"),
+      DateTime.parse("2025-04-09 16:00"),
+      150,
+      true,
+    ),
+    Auction(
+      3,
+      DateTime.parse("2025-04-01 10:00"),
+      DateTime.parse("2025-04-04 18:00"),
+      90,
+      false,
+    ),
+    Auction(
+      4,
+      DateTime.parse("2025-04-05 14:00"),
+      DateTime.parse("2025-04-08 15:00"),
+      120,
+      true,
+    ),
+  ];
   List<Bid> bids = [];
   Map<int, Auction> auctionMap = {};
 }
