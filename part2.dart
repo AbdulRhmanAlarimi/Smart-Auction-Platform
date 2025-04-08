@@ -8,6 +8,8 @@ enum NotificationType { outbid, auctionEnd, saleCompleted }
 
 enum DeliveryStatus { pending, inTransit, delivered }
 
+enum AuctionType { fixedPrice, auction }
+
 class User {
   static int _nextId = 1;
   int _id;
@@ -105,6 +107,7 @@ class Auction {
   DateTime _endTime;
   double _currentBid;
   bool _isActive;
+  AuctionType _type;
 
   Auction(
     this._itemId,
@@ -112,6 +115,7 @@ class Auction {
     this._endTime,
     this._currentBid,
     this._isActive,
+    this._type,
   ) : _auctionId = _nextId++;
 
   int get auctionId => _auctionId;
@@ -120,6 +124,7 @@ class Auction {
   DateTime get endTime => _endTime;
   double get currentBid => _currentBid;
   bool get isActive => _isActive;
+  AuctionType get type => _type;
 
   set currentBid(double value) => _currentBid = value;
   set isActive(bool value) => _isActive = value;
@@ -152,9 +157,9 @@ class Bid {
   DateTime get time => _time;
 
   set amount(double value) => _amount = value;
-  //check it ============================================
+
   set time(DateTime value) => _time = value;
-  //=====================================================
+
   @override
   String toString() =>
       'Bid: \$$_amount by User $_userId on Auction $_auctionId at $_time';
@@ -245,40 +250,47 @@ class Delivery {
 void main() {
   List<User> users = [
     User(
-      "john_doe",
-      "john@example.com",
+      "Ahmed",
+      "Ahmed@gmail.com",
       "1234567890",
       "123 Main St",
-      "password123",
+      "123",
       UserRole.buyer,
     ),
     User(
-      "jane_seller",
-      "jane@example.com",
+      "Ali",
+      "Ali@example.com",
       "0987654321",
       "456 Elm St",
-      "securepass",
+      "123444",
       UserRole.seller,
     ),
   ];
 
   List<Item> items = [
     Item(
-      users[0]._id,
-      "Antique Vase",
-      "A beautiful antique vase from the 18th century.",
-      100.0,
+      users[1]._id,
+      "Metal Scrap",
+      "High-quality metal scrap suitable for recycling.",
+      50.0,
       null,
       ItemStatus.available,
     ),
-
     Item(
       users[1]._id,
-      "Vintage Watch",
-      "A rare vintage watch in excellent condition.",
-      200.0,
-      500.0,
+      "Plastic Scrap",
+      "Assorted plastic scrap for industrial use.",
+      null,
+      100.0,
       ItemStatus.sold,
+    ),
+    Item(
+      users[1]._id,
+      "Electronic Scrap",
+      "Old electronic components and circuit boards.",
+      70.0,
+      null,
+      ItemStatus.available,
     ),
   ];
 
@@ -286,20 +298,30 @@ void main() {
     Auction(
       items[0].itemId,
       DateTime.now(),
-      DateTime.now().add(Duration(days: 1)),
-      100.0,
-      true,
+      DateTime.now().add(Duration(hours: 12)),
+      150.0,
+      true, // active auction
+      AuctionType.auction,
+    ),
+    Auction(
+      items[2].itemId,
+      DateTime.now().subtract(Duration(hours: 24)),
+      DateTime.now().subtract(Duration(hours: 12)),
+      250.0,
+      false, // not active auction
+      AuctionType.auction,
     ),
     Auction(
       items[1].itemId,
       DateTime.now(),
-      DateTime.now().add(Duration(days: 2)),
-      200.0,
-      true,
+      DateTime.now().add(Duration(hours: 6)),
+      500.0,
+      true, // fixed price auction
+      AuctionType.fixedPrice,
     ),
   ];
 
-  List<Bid> bids = [
+  final List<Bid> bids = [
     Bid(auctions[0]._auctionId, users[0]._id, 120.0, DateTime.now()),
     Bid(
       auctions[1]._auctionId,
@@ -309,16 +331,16 @@ void main() {
     ),
   ];
 
-  Map<int, Auction> auctionMap = {
+  final Map<int, Auction> auctionMap = {
     for (var auction in auctions) auction.auctionId: auction,
   };
 
   void displayMenu() {
     print("\n=== Smart Auction Platform Menu ===");
-    print("1. Display Information of Lists");
+    print("1. Display Information");
     print("2. Add New Data to List");
     print("3. Delete Record");
-    print("4. Search Record");
+    print("4. Search Item");
     print("5. Exit");
     stdout.write("Choose an option: ");
   }
@@ -333,11 +355,20 @@ void main() {
     switch (choice) {
       case 1:
         print("\nItems:");
-        items.forEach((item) => print(item));
+        items.forEach(
+          (item) => print(
+            'Name: ${item.name}\n Description: ${item.description}\n Status: ${item.status}',
+          ),
+        );
         break;
       case 2:
         print("\nAuctions:");
-        auctions.forEach((auction) => print(auction));
+        auctions.forEach((auction) {
+          var item = items.firstWhere((item) => item.itemId == auction.itemId);
+          print(
+            'Auction for Item: ${item.name}, Current Bid: \$${auction.currentBid}, Status: ${auction.isActive ? "Active" : "Completed"}',
+          );
+        });
         break;
       default:
         print("Invalid option. Please try again.");
@@ -369,37 +400,46 @@ void main() {
         String address = stdin.readLineSync()!;
         stdout.write("Enter password: ");
         String password = stdin.readLineSync()!;
-        stdout.write("Enter role (buyer/seller): ");
-        String role = stdin.readLineSync()!;
-        users.add(
-          User(
-            username,
-            email,
-            phone,
-            address,
-            password,
-            role == "buyer" ? UserRole.buyer : UserRole.seller,
-          ),
+        String role;
+        while (true) {
+          stdout.write("Enter role (buyer/seller): ");
+          role = stdin.readLineSync()!;
+          if (role.toLowerCase() == "buyer" || role.toLowerCase() == "seller") {
+            break;
+          } else {
+            print("Invalid role. Please enter (buyer) or (seller)");
+          }
+        }
+        User newUser = User(
+          username,
+          email,
+          phone,
+          address,
+          password,
+          role == "buyer" ? UserRole.buyer : UserRole.seller,
         );
-        print("User added successfully.");
+        users.add(newUser);
+        print("User added successfully");
         break;
       case 2:
-        stdout.write("Enter seller ID: ");
-        int sellerId = int.parse(stdin.readLineSync()!);
-        if (!users.any(
-          (user) => user.id == sellerId && user.role == UserRole.seller,
-        )) {
-          print(
-            "Error: Seller ID $sellerId is not registered or is not a seller.",
+        stdout.write("Enter your phone number: ");
+        String phone = stdin.readLineSync()!;
+        User? seller;
+        try {
+          seller = users.firstWhere(
+            (user) => user.phone == phone && user.role == UserRole.seller,
           );
+        } catch (e) {
+          print("Error: Phone number not found or user is not a seller");
           return;
         }
+
         stdout.write("Enter item name: ");
         String name = stdin.readLineSync()!;
         stdout.write("Enter description: ");
         String description = stdin.readLineSync()!;
         print(
-          "Do you want this item to be sold at a fixed price or via auction?",
+          "Do you want this item to be sold at  fixed price or via auction?",
         );
         print("1. Fixed Price");
         print("2. Auction");
@@ -411,15 +451,15 @@ void main() {
           double fixedPrice = double.parse(stdin.readLineSync()!);
           items.add(
             Item(
-              sellerId,
+              seller.id,
               name,
               description,
-              null, // Starting price is null for fixed price
+              null,
               fixedPrice,
               ItemStatus.available,
             ),
           );
-          print("Item added successfully with a fixed price.");
+          print("Item added successfully with a fixed price");
         } else if (itemChoice == 2) {
           stdout.write("Enter starting price: ");
           String? startingPriceInput = stdin.readLineSync();
@@ -427,6 +467,9 @@ void main() {
               startingPriceInput != null && startingPriceInput.isNotEmpty
                   ? double.parse(startingPriceInput)
                   : null;
+          if (startingPrice != null) {
+            print("Starting price set to \$${startingPrice}");
+          }
           stdout.write("Enter auction start time (yyyy-MM-dd HH:mm): ");
           DateTime startTime = DateTime.parse(stdin.readLineSync()!);
           stdout.write("Enter auction end time (yyyy-MM-dd HH:mm): ");
@@ -435,55 +478,95 @@ void main() {
           double startingBid = double.parse(stdin.readLineSync()!);
 
           Item newItem = Item(
-            sellerId,
+            seller.id,
             name,
             description,
-            startingBid, // Starting price is used for auction
-            null, // Fixed price is null for auction
+            startingBid,
+            null,
             ItemStatus.auction,
           );
           items.add(newItem);
 
           auctions.add(
-            Auction(newItem.itemId, startTime, endTime, startingBid, true),
+            Auction(
+              newItem.itemId,
+              startTime,
+              endTime,
+              startingBid,
+              true,
+              AuctionType.auction,
+            ),
           );
-          print("Item added successfully and listed for auction.");
+          print("Item added successfully and listed for auction");
         } else {
-          print("Invalid option. Item not added.");
+          print("Invalid option. Item not added");
+          break;
         }
-        break;
-      case 4:
-        stdout.write("Enter auction ID: ");
-        int auctionId = int.parse(stdin.readLineSync()!);
-        Auction? auction = auctions.firstWhere(
-          (a) => a.auctionId == auctionId,
-          orElse: () {
-            throw Exception("Error: Auction ID $auctionId not found.");
-          },
-        );
+      case 3:
+        {
+          print("\nAvailable Auctions:");
+          auctions.forEach((auction) {
+            var item = items.firstWhere(
+              (item) => item.itemId == auction.itemId,
+            );
+            if (auction.isActive) {
+              print(
+                "Auction ID: ${auction.auctionId}, Item ID: ${auction.itemId}, Current Bid: \$${auction.currentBid}, ${item.fixedPrice != null ? "Fixed Price: \$${item.fixedPrice}" : "Auction"}",
+              );
+            }
+          });
 
-        if (auction == null) {
-          return;
+          stdout.write("Enter auction ID: ");
+          int auctionId = int.parse(stdin.readLineSync()!);
+
+          Auction auction;
+          try {
+            auction = auctions.firstWhere((a) => a.auctionId == auctionId);
+          } catch (e) {
+            print("Error: Auction not found");
+            return;
+          }
+
+          stdout.write("Enter your phone number: ");
+          String phone = stdin.readLineSync()!;
+          User user;
+          try {
+            user = users.firstWhere((u) => u.phone == phone);
+          } catch (e) {
+            print("Error: User not found");
+            return;
+          }
+
+          stdout.write("Enter bid amount: ");
+          double amount = double.parse(stdin.readLineSync()!);
+
+          var item = items.firstWhere((item) => item.itemId == auction.itemId);
+          if (item.fixedPrice != null && amount == item.fixedPrice) {
+            print(
+              "Congratulations! You have purchased the product at the fixed price of \$${item.fixedPrice}",
+            );
+            auction.isActive = false;
+            item.status = ItemStatus.sold;
+            return;
+          }
+
+          if (amount <= auction.currentBid) {
+            print(
+              "Error: Bid amount must be greater than the current bid (\$${auction.currentBid})",
+            );
+            return;
+          }
+
+          bids.add(Bid(auctionId, user.id, amount, DateTime.now()));
+          auction.currentBid = amount;
+          print("Bid added successfully");
+          break;
         }
-
-        stdout.write("Enter user ID: ");
-        int userId = int.parse(stdin.readLineSync()!);
-        stdout.write("Enter bid amount: ");
-        double amount = double.parse(stdin.readLineSync()!);
-
-        if (amount <= auction.currentBid) {
-          print(
-            "Error: Bid amount must be greater than the current bid (\$${auction.currentBid}).",
-          );
-          return;
-        }
-
-        bids.add(Bid(auctionId, userId, amount, DateTime.now()));
-        auction.currentBid = amount;
-        print("Bid added successfully.");
-        break;
       default:
-        print("Invalid option.");
+        {
+          print("Invalid option");
+          break;
+        }
     }
   }
 
@@ -501,9 +584,9 @@ void main() {
         try {
           var userToDelete = users.firstWhere((user) => user.phone == phone);
           users.remove(userToDelete);
-          print("User deleted successfully.");
+          print("User deleted successfully");
         } catch (e) {
-          print("User not found. Please try again.");
+          print("User not found. Please try again");
         }
         break;
       case 2:
@@ -512,10 +595,10 @@ void main() {
         try {
           var itemToDelete = items.firstWhere(
             (item) => item.name == name,
-            orElse: () => throw Exception("Item not found."),
+            orElse: () => throw Exception("Item not found"),
           );
           items.remove(itemToDelete);
-          print("Item deleted successfully.");
+          print("Item deleted successfully");
         } catch (e) {
           print(e);
         }
@@ -523,11 +606,10 @@ void main() {
   }
 
   void searchRecord(List<Item> items) {
-    print("\n=== Search Item ===");
     stdout.write("Enter item name to search: ");
     String? name = stdin.readLineSync();
     if (name == null || name.trim().isEmpty) {
-      print("No input provided. Please enter a valid item name.");
+      print("No input provided. Please enter a valid item name");
       return;
     }
     var results =
@@ -537,7 +619,7 @@ void main() {
             )
             .toList();
     if (results.isEmpty) {
-      print("No items found with the name '$name'.");
+      print("No items found with the name '$name'");
     } else {
       results.forEach(print);
     }
@@ -550,27 +632,32 @@ void main() {
     List<Bid> bids,
   ) {
     while (true) {
-      displayMenu();
-      int choice = int.parse(stdin.readLineSync()!);
+      try {
+        displayMenu();
+        int choice = int.parse(stdin.readLineSync()!);
 
-      switch (choice) {
-        case 1:
-          displayListInfo(items, auctions);
-          break;
-        case 2:
-          addNewData(users, items, auctions, bids);
-          break;
-        case 3:
-          deleteRecord(users, items);
-          break;
-        case 4:
-          searchRecord(items);
-          break;
-        case 5:
-          print("Exiting program. Goodbye!");
-          return;
-        default:
-          print("Invalid option. Please try again.");
+        switch (choice) {
+          case 1:
+            displayListInfo(items, auctions);
+            break;
+          case 2:
+            addNewData(users, items, auctions, bids);
+            break;
+          case 3:
+            deleteRecord(users, items);
+            break;
+          case 4:
+            searchRecord(items);
+            break;
+          case 5:
+            print("Thank You for using the Smart Auction Platform");
+            return;
+          default:
+            print("Invalid option. Please try again");
+        }
+      } catch (e) {
+        print("error occurred: ${e.toString()}");
+        print("Please try again");
       }
     }
   }
